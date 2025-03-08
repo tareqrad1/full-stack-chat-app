@@ -1,2 +1,11 @@
 @import "tailwindcss";
 @plugin "daisyui";
+
+.input {
+    &:focus, &:focus-within {
+        --input-color: none;
+        box-shadow: none;
+        outline: none;
+        outline-offset: none;
+    }
+}
