@@ -1,13 +1,15 @@
 import { Info, X } from 'lucide-react'
 import React from 'react'
+import { useChatStore } from '../store/useChatStore'
 
 const NavbarMessages = ({ show, setShow }: { show: boolean, setShow: React.Dispatch<React.SetStateAction<boolean>> }) => {  
+  const { selectedUser } = useChatStore();
   return (
     <div className=' flex justify-between items-center py-3 px-4 bg-[#FFFFFF]'>
       <div className='flex gap-2 cursor-pointer' onClick={() => setShow(true)}>
-        <img src="../../images/3d-illustration-person-with-sunglasses_23-2149436188.jpg" alt="" className='size-12 rounded-full' />
+        <img src={selectedUser?.profilePicture} alt="" className='size-12 rounded-full' />
         <div>
-          <h1 className='text-black'>Jon Doa</h1>
+          <h1 className='text-black'>{selectedUser?.fullname}</h1>
           <small className='text-[#6E6E6E]'>offline</small>
         </div>
       </div>

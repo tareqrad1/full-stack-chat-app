@@ -34,7 +34,7 @@ const LoginPage: React.FC = (): JSX.Element => {
       <div className='flex bg-white text-black w-full h-[100vh]'>
         {/* left side */}
         <div className='hidden md:block md:w-1/2'>
-          <img src='../../images/SIDEBAR.png' className='h-[100vh] w-full object-cover'/>
+          <img src='../../images/Screenshot 2025-03-09 134310.png' className='h-[100vh] w-full object-cover'/>
         </div>
         {/* right side */}
         <div className='flex justify-center items-center w-full md:w-1/2'>

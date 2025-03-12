@@ -4,7 +4,8 @@ import { create } from 'zustand';
 const API_URL = 'http://localhost:3000/api';
 axios.defaults.withCredentials = true;
 
-type User = {
+export type User = {
+    _id: string;
     fullname: string;
     email: string;
     password: string;

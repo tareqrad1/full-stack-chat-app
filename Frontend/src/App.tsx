@@ -7,18 +7,21 @@ import NotFoundPage from './pages/NotFoundPage';
 import { useAuthStore } from './store/useAuthStore';
 import Loading from './components/Loading';
 import { Toaster } from 'react-hot-toast';
+import ProfilePage from './pages/ProfilePage';
+import { useChatStore } from './store/useChatStore';
 
 const App: React.FC = (): React.JSX.Element => {
   const { checkAuth, user, isCheckingAuth } = useAuthStore();
+  const { getUsers } = useChatStore();
   const isMounted = useRef<boolean>(false);
 
   useEffect(() => {
     if(!isMounted.current) {
       isMounted.current = true;
       checkAuth();
+      getUsers();
     }
-  },[checkAuth]);
-  console.log(user);
+  },[checkAuth, getUsers]);
   
   if(isCheckingAuth) return <Loading />
   return (
@@ -28,6 +31,7 @@ const App: React.FC = (): React.JSX.Element => {
         <Route path='/' element={user ? <HomePage /> : <Navigate to={'/login'} />} />
         <Route path='/signup' element={!user ? <Register /> : <Navigate to="/" replace={true}/>} />
         <Route path='/login' element={!user ? <LoginPage /> : <Navigate to="/" />} />
+        <Route path='/profile' element={user ? <ProfilePage /> : <Navigate to={'/login'} />} />
       </Routes>
       <Toaster />
     </div>
