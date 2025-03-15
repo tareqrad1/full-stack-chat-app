@@ -1,6 +1,7 @@
 import User from "../models/user.model.js";
 import Message from '../models/message.model.js';
 import cloudinary from "../config/connectCloudinary.config.js";
+import { getReceiverSocketId, io } from "../lib/socket.io.js";
 
 export const getUsersForSidebar = async(req, res) => {
     try {
@@ -38,16 +39,19 @@ export const addMessage = async(req, res) => {
         if(!text && !image) {
             return res.status(400).json({ error: 'Please provide text or image' });
         }
-        const message = new Message({
+        const newMessage = new Message({
             senderId: myId,
             receiverId: id,
             text,
             image
         });
-        await message.save();
-        //Todo: socket io here
-        
-        res.status(200).json({ message });
+        await newMessage.save();
+        // start socket io
+        const receiverSocketId = getReceiverSocketId(id);
+        if(receiverSocketId) {
+            io.to(receiverSocketId).emit("newMessage", newMessage);
+        }
+        res.status(200).json({ newMessage });
     } catch (error) {
         console.log(error.message);
         

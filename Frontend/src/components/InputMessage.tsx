@@ -1,5 +1,5 @@
 import { CircleX, Paperclip, Send } from 'lucide-react'
-import React, { ChangeEvent, useRef, useState } from 'react'
+import React, { ChangeEvent, FormEvent, useRef, useState } from 'react'
 import { useChatStore } from '../store/useChatStore';
 
 interface MessageTypes {
@@ -40,7 +40,7 @@ const handleImgChange = (e: ChangeEvent<HTMLInputElement>) => {
 };
 
   return (
-    <div className='flex'>
+    <form onSubmit={(e: FormEvent<HTMLFormElement>) => e.preventDefault()} className='flex'>
         <div className='w-full flex gap-2 items-center'>
             <Paperclip className='cursor-pointer text-[#8C8C8C]'
 							onClick={() => imgRef.current!.click()} />
@@ -60,8 +60,8 @@ const handleImgChange = (e: ChangeEvent<HTMLInputElement>) => {
 						<img src={messageDetails.image} className='h-30 w-full mx-auto object-contain rounded' />
 					</div>
 				)}
-        <button onClick={handleClick} className='ml-1 text-sm text-[#27AE60] font-bold cursor-pointer'><Send className={!messageDetails.text.trim() && !messageDetails.image ? "text-[#8c8c8c] cursor-default" : 'text-[#27AE60]' } /></button>
-    </div>
+        <button onClick={handleClick} type='submit' className='ml-1 text-sm text-[#27AE60] font-bold cursor-pointer'><Send className={!messageDetails.text.trim() && !messageDetails.image ? "text-[#8c8c8c] cursor-default" : 'text-[#27AE60]' } /></button>
+    </form>
   )
 }
 

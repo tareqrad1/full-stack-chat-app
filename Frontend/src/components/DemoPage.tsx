@@ -1,14 +1,16 @@
 import { MessageSquare, Settings } from 'lucide-react'
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuthStore } from '../store/useAuthStore';
 
 const DemoPage: React.FC = () => {
     const Navigate = useNavigate();
+    const { user } = useAuthStore();
   return (
     <div>
         <nav className='flex justify-between items-center bg-[#e7e7e763] px-3 py-2'>
             <div>
-                <img src="../../images/3d-illustration-person-with-sunglasses_23-2149436188.jpg" alt="" className='size-12 rounded-full' title='my photo' />
+                <img src={user?.profilePicture} alt={user?.fullname} className='size-12 rounded-full cursor-pointer' title='My Profile' onClick={() => Navigate('/profile')} />
             </div>
             <div>
                 <Settings className='text-[#8C8C8C] cursor-pointer' onClick={() => Navigate('/profile')} />

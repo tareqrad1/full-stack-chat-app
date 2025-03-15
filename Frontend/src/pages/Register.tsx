@@ -1,6 +1,6 @@
 import { Loader, Lock, LockKeyhole, Mail, User } from 'lucide-react'
 import React, { ChangeEvent, FormEvent, JSX, useState } from 'react'
-import { Link, Navigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/useAuthStore'
 import toast from 'react-hot-toast';
 
@@ -18,6 +18,7 @@ const Register: React.FC = (): JSX.Element => {
     confirmPassword: '',
   });
   const { signup, isLoading, error } = useAuthStore();
+  const navigate = useNavigate();
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setUserDetails((prev) => {
       return {
@@ -30,7 +31,7 @@ const Register: React.FC = (): JSX.Element => {
     e.preventDefault();
     await signup(userDetails.fullname, userDetails.email, userDetails.password, userDetails.confirmPassword);
     toast.success('Account created successfully');
-    <Navigate to={'/login'}/>
+    navigate('/login');
   };
   return (
     <>

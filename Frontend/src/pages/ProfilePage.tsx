@@ -1,50 +1,120 @@
-import { Camera, Mail, MessageSquare, User } from 'lucide-react'
-import React from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Camera, LogOut, Mail, MessageSquare, User } from 'lucide-react';
+import React, { ChangeEvent, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../store/useAuthStore';
+import toast from 'react-hot-toast';
 
 const ProfilePage: React.FC = (): React.JSX.Element => {
-  const Navigate = useNavigate();
+  const navigate = useNavigate();
+  const { user, signout, updateProfile } = useAuthStore();
+  const [data, setData] = useState({
+    fullname: user?.fullname,
+    email: user?.email,
+  });
+  const [newImage, setNewImage] = useState<string | undefined>(user?.profilePicture);
+  const imgRef = useRef<HTMLInputElement | null>(null);
+
+  async function handleEditNewData() {
+    await updateProfile(data.fullname, data.email, newImage);
+    toast.success('Profile updated successfully');
+  }
+
+  const handleImgChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setNewImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
-    <header className='bg-white h-screen w-full'>
-      <nav className='flex justify-between items-center py-3 px-5 bg-[#fafafa]'>
-        <div className=''>
-          <MessageSquare className='text-[#108c43a0] size-10' />
-        </div>
-        <div>
-          <button className='btn bg-[#108c43a0] capitalize text-white border-none' onClick={() => Navigate('/')}>go back</button>
+    <div className="bg-gray-100 min-h-screen flex flex-col">
+      {/* Navbar */}
+      <nav className="flex justify-between items-center py-4 px-6 bg-white shadow-md">
+        <MessageSquare className="text-green-600 size-8" />
+        <div className="flex space-x-3">
+          <button
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition"
+            onClick={() => navigate('/')}
+          >
+            Go Back
+          </button>
+          <button
+            className="bg-red-500 cursor-pointer hover:bg-red-600 text-white p-2 rounded-md transition"
+            onClick={() => signout()}
+            title="Logout"
+          >
+            <LogOut className="size-5" />
+          </button>
         </div>
       </nav>
-      {/* start content */}
-      <main className='text-black h-[calc(100% - 64px)] flex flex-col justify-center items-center'>
-        <div className='w-[500px]'>
-          <header className='mb-5'>
-            <h1 className='text-3xl font-bold text-center'>PROFILE</h1>
-            <p className='text-[#9c9c9c] text-center line-clamp-2 text-sm'>Your profile information</p>
-          </header>
-          <div className='flex justify-center flex-col items-center'>
-            <div className='relative'>
-              <img className='size-60 rounded-full' src="../../images/3d-illustration-person-with-sunglasses_23-2149436188.jpg" alt="" />
-              <Camera className='absolute bottom-[25px] right-[22px] z-20 text-[#000] cursor-pointer' />
+
+      {/* Profile Content */}
+      <main className="flex flex-col justify-center items-center flex-1 px-4">
+        <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-lg text-center">
+          <h1 className="text-3xl font-extrabold text-black">Welcome,</h1>
+          <p className="text-lg font-semibold text-gray-700 capitalize">{user?.fullname}</p>
+          <p className="text-gray-500 text-sm">Update your profile information</p>
+
+          {/* Profile Image */}
+          <div className="relative mt-6">
+            <img
+              className="w-32 h-32 rounded-full object-cover border-4 border-gray-200 shadow-md"
+              src={newImage}
+              alt={data.fullname}
+            />
+            <div
+              className="absolute bottom-2 right-2 bg-white p-2 rounded-full shadow cursor-pointer hover:bg-gray-200 transition"
+              onClick={() => imgRef.current?.click()}
+            >
+              <Camera className="text-gray-600 size-6" />
             </div>
-            <small className='text-[#acaaaa]'>click the camera icon to update your photo</small>
+            <input type="file" accept="image/*" hidden ref={imgRef} onChange={handleImgChange} />
           </div>
-          <div className='space-y-4 mt-5 w-[100%]'>
-            <div className='flex justify-center flex-col items-center'>
-              <h3 className='flex'><User className='mr-1 ' /> Full Name</h3>
-              <input type="text" className='mt-2 px-4 py-[1px] rounded-lg border-none bg-[#7777] outline-0'/>
+          <small className="text-gray-500">Click the camera icon to update your photo</small>
+
+          {/* Form */}
+          <div className="mt-6 space-y-4">
+            <div className="flex flex-col items-center">
+              <label className="flex items-center space-x-2 text-gray-700">
+                <User className="size-5" />
+                <span>Full Name</span>
+              </label>
+              <input
+                type="text"
+                className="mt-2 px-4 py-2 w-full border rounded-md focus:ring focus:ring-green-300 text-black"
+                value={data.fullname}
+                onChange={(e) => setData({ ...data, fullname: e.target.value })}
+              />
             </div>
-            <div className='flex justify-center flex-col items-center'>
-              <h3 className='flex'><Mail className='mr-1' /> Email</h3>
-              <input type="text"  className='mt-2 px-4 py-[1px] rounded-lg border-none bg-[#7777] outline-0'/>
+
+            <div className="flex flex-col items-center">
+              <label className="flex items-center space-x-2 text-gray-700">
+                <Mail className="size-5" />
+                <span>Email</span>
+              </label>
+              <input
+                type="email"
+                className="mt-2 px-4 py-2 w-full border rounded-md focus:ring focus:ring-green-300 text-black"
+                value={data.email}
+                onChange={(e) => setData({ ...data, email: e.target.value })}
+              />
             </div>
-            <div>
-              <button className='bg-[green] border-none w-full cursor-pointer h-full px-4 py-1 text-white text-center rounded-full flex justify-center'>Save Change</button>
-            </div>
+
+            <button
+              onClick={handleEditNewData}
+              className="w-full cursor-pointer bg-green-600 hover:bg-green-700 text-white py-2 rounded-md font-semibold transition"
+            >
+              Save Changes
+            </button>
           </div>
         </div>
       </main>
-    </header>
-  )
-}
+    </div>
+  );
+};
 
-export default ProfilePage
+export default ProfilePage;

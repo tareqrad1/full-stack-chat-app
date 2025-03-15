@@ -14,13 +14,13 @@ const ContentMessages: React.FC = (): React.JSX.Element => {
           </nav>
           {show ? <DetailsUser /> : (
             <>
-              <main className='overflow-y-scroll w-full relative h-[560px]'>
+              <main className='overflow-y-scroll w-full relative h-[560px] bg-[#cccccc1f]'>
                 {show ? <DetailsUser /> : <ChatMessage />}
               </main>
             </>
           )}
           <footer className='bg-[#FAFAFA] text-black py-3 px-3 absolute bottom-0 w-full'>
-                <InputMessage />
+              <InputMessage />
           </footer>
         </div>
     </div>

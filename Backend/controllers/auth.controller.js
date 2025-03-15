@@ -5,7 +5,7 @@ import { schema, updateSchema } from '../utils/validationSchema.js';
 import bcrypt from 'bcryptjs';
 
 export const signup = async(req, res) => {
-    const { fullname, email, password, confirmPassword, profilePicture } = req.body;
+    const { fullname, email, password, confirmPassword } = req.body;
     try {
         if(!fullname || !email || !password || !confirmPassword) return res.status(400).json({ error: "All fields are required" });
         const { error } = schema.validate(req.body);
@@ -19,10 +19,9 @@ export const signup = async(req, res) => {
             fullname,
             email,
             password: hashPassword,
-            profilePicture
+            profilePicture: '../images/avatar.png'
         });
         await user.save();
-        generateTokenAndSetCookie(user._id, res);
         res.status(201).json({ message: "User created successfully", user: {
             ...user._doc,
             password: null
@@ -84,16 +83,31 @@ export const updateUserProfile = async(req, res) => {
             }
             user.password = await bcrypt.hash(newPassword, 10);
         }
-        if(profilePicture) {
-            if(user.profilePicture) {
-                await cloudinary.uploader.destroy(user.profilePicture.split('/').pop().split('.')[0]);
+        if (profilePicture) {
+            try {
+                if (user?.profilePicture) {
+                    // Extract the Cloudinary public ID from the existing URL
+                    const publicId = user.profilePicture
+                        .split('/')
+                        .slice(-1)[0] // Get last part of URL
+                        .split('.')[0]; // Remove file extension
+                    await cloudinary.uploader.destroy(publicId);
+                }
+                // Upload new image to Cloudinary
+                const uploadResponse = await cloudinary.uploader.upload(profilePicture, {
+                    folder: "user_profiles", // Optional: Store in a specific folder
+                    use_filename: true,
+                    unique_filename: false
+                });
+                profilePicture = uploadResponse.secure_url;
+                user.profilePicture = profilePicture || user?.profilePicture;
+            } catch (uploadError) {
+                console.error("Cloudinary upload error:", uploadError);
+                return res.status(500).json({ error: "Failed to upload profile picture" });
             }
-            const uploadResponse = await cloudinary.uploader.upload(profilePicture);
-            profilePicture = uploadResponse.secure_url;
         }
         user.fullname = fullname || user.fullname;
         user.email = email || user.email;
-        user.profilePicture = profilePicture || user.profilePicture;
         await user.save();
         res.status(201).json({ message: "User updated successfully", user: {
             ...user._doc,
@@ -106,7 +120,6 @@ export const updateUserProfile = async(req, res) => {
 };
 export const checkAuth = async(req, res) => {
     try {
-        console.log(req.user._id);
         const user = await User.findById(req.user._id);
         if(!user) return res.status(404).json({ error: 'User not found' });
         res.status(200).json({ user: {

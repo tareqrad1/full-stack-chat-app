@@ -1,36 +1,55 @@
-import { Check, CheckCheck } from 'lucide-react'
-import React from 'react'
-import { useChatStore } from '../store/useChatStore'
+import { Check, CheckCheck } from "lucide-react";
+import React from "react";
+import { useChatStore } from "../store/useChatStore";
+import { useAuthStore } from "../store/useAuthStore";
 
 interface UserType {
-    user: {
-        _id: string;
-        createdAt: string;
-        fullname: string;
-        email: string;
-        profilePicture: string;
-    }
+  user: {
+    _id: string;
+    createdAt: Date;
+    fullname: string;
+    email: string;
+    profilePicture: string | null;
+  };
 }
 
 const UserList: React.FC<UserType> = ({ user }: UserType) => {
-    const { setSelectedUser } = useChatStore();
-    return (
-        <div className='mt-3 hover:bg-[#F5F5F5] px-4 py-2 cursor-pointer bg-[#f9f9f9be]' onClick={() => setSelectedUser(user)}>
-            <div className='flex justify-between space-y-2'>
-                <div className='flex gap-2'>
-                    <img className='size-12 rounded-full' src={user.profilePicture} alt="" />
-                    <div className='sm:flex flex-col hidden'>
-                        <h3 className=' text-black font-normal text-xl'>{user.fullname}</h3>
-                        <p className='text-[#6E6E6E] text-[12px]'>Offline</p>
-                    </div>
-                </div>
-                <div className='w-full flex-1 flex items-end flex-col gap-1.5'>
-                    <small className='text-[#6E6E6E]'>16:25</small>
-                    {true ? <CheckCheck className='size-5 text-[#27AE60]' /> : <Check className='size-5 text-[#3333]' />}                
-                </div>
-            </div>
-        </div>
-    )
-}
+  const { setSelectedUser } = useChatStore();
+  const { onlineUsers } = useAuthStore();
 
-export default UserList
+  return (
+    <div
+      className="flex items-center justify-between px-4 py-3 mt-2 cursor-pointer rounded-lg hover:bg-gray-100 transition"
+      onClick={() => setSelectedUser(user)}
+    >
+      {/* User Info */}
+      <div className="flex items-center space-x-3">
+        <img
+          className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover shadow-md border border-gray-300"
+          src={user?.profilePicture === null ? "https://via.placeholder.com/150" : user.profilePicture}
+          alt={user.fullname}
+        />
+        <div>
+          <h3 className="text-black font-semibold text-sm sm:text-base">{user.fullname}</h3>
+          <p className={`text-xs sm:text-sm ${onlineUsers.includes(user._id) ? "text-green-600 font-semibold" : "text-gray-500"}`}>
+            {onlineUsers.includes(user._id) ? "Online" : "Offline"}
+          </p>
+        </div>
+      </div>
+
+      {/* Status & Last Active (Hidden on Mobile) */}
+      <div className="hidden sm:flex flex-col items-end space-y-1">
+        <small className="text-gray-500">
+          {Math.floor(1 + Math.random() * 24)}:{Math.floor(1 + Math.random() * 60)}
+        </small>
+        {onlineUsers.includes(user._id) ? (
+          <CheckCheck className="w-5 h-5 text-green-500" />
+        ) : (
+          <Check className="w-5 h-5 text-gray-400" />
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default UserList;
